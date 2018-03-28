@@ -10,6 +10,7 @@ def compute_returns(p):
 def plot_p(df):
     import matplotlib.pyplot as plt
     from matplotlib.finance import candlestick2_ohlc
+#     from mpl_finance import candlestick2_ohlc  
     fig, ax = plt.subplots()
     candlestick2_ohlc(ax,
                       df['price_open'].values,
@@ -27,6 +28,8 @@ def plot_p(df):
 def save_to_file(df, filename):
     import matplotlib.pyplot as plt
     from matplotlib.finance import candlestick2_ohlc
+#     from mpl_finance import candlestick2_ohlc  
+
     fig, ax = plt.subplots()
     candlestick2_ohlc(ax,
                       df['price_open'].values,

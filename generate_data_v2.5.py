@@ -21,7 +21,13 @@ pd.set_option('display.width', 1000)
 
 
 def get_price_direction(btc_df, btc_slice, i, slice_size):
-    last_price = btc_slice[-2:-1]['price_close'].values[0]
+    last_price = btc_slice[-1:]['price_close'].values[0]
+    lp = btc_df[i + slice_size-1:i + slice_size]['price_close'].values[0]
+    
+    if lp != last_price:
+        raise Exception('Prices don\'t make sense')
+
+    
     next_price = btc_df[i + slice_size:i + slice_size + 1]['price_close'].values[0]
     if last_price < next_price:
         class_name = 'UP'
@@ -102,7 +108,7 @@ def main():
     data_file = f'{PATH}train2015_01_27__2018_02_06.csv'
     data_file_test = f'{PATH}test2018_02_06__2018_03_06.csv'
     data_folder = f'{PATH}btcgraphs/1.5/'
-    
+    mkdir_p(data_folder)
     generate_cnn_dataset(data_folder, data_file, data_file_test)
 
 
