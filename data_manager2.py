@@ -2,7 +2,7 @@ import datetime
 
 import pandas as pd
 
-
+# this version of data manager fills NA values instead of dropping them
 # http://api.bitcoincharts.com/v1/csv/
 
 def file_processor(data_file):
