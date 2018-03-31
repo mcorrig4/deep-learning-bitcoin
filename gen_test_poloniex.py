@@ -21,7 +21,7 @@ pd.set_option('display.width', 1000)
 
 
 def get_price_direction(btc_df, btc_slice, i, slice_size):
-    last_price = btc_slice[-2:-1]['price_close'].values[0]
+    last_price = btc_slice[-1:]['price_close'].values[0]
     next_price = btc_df[i + slice_size:i + slice_size + 1]['price_close'].values[0]
     if last_price < next_price:
         class_name = 'UP'
@@ -35,13 +35,17 @@ def generate_cnn_dataset(data_folder, bitcoin_file):
     btc_df = pd.read_table(bitcoin_file, sep=',', header=1, index_col=0, names=
                            ['price_open', 'price_high', 'price_low', 'price_close'])
 
-
     slice_size = 40
     test_every_steps = 10
     n = len(btc_df) - slice_size
 
     shutil.rmtree(data_folder, ignore_errors=True)
+    save_dir = os.path.join(data_folder, 'test')
+    mkdir_p(save_dir)
+
+    # Number of images to create
     cycles = int((1e5)/2)
+    
     for epoch in range(int(cycles)):
         st = time()
 
@@ -50,17 +54,18 @@ def generate_cnn_dataset(data_folder, bitcoin_file):
         # take following 40 time periods (total 41)
         btc_slice = btc_df[i:i + slice_size]
 
-        if btc_slice.isnull().values.any():
-            # sometimes prices are discontinuous and nothing happened in one 5min bucket.
-            # in that case, we consider this slice as wrong and we raise an exception.
-            # it's likely to happen at the beginning of the data set where the volumes are low.
-            raise Exception('NaN values detected. Please remove them.')
-
+        # Classify Image
         class_name = get_price_direction(btc_df, btc_slice, i, slice_size)
-        save_dir = os.path.join(data_folder, 'test')
-        mkdir_p(save_dir)
+
+        # Create and Save the Image
         filename = save_dir + '/' + class_name + str(uuid4()) + '.png'
         save_to_file(btc_slice, filename=filename)
+        
+        # Crop the Image
+        img = cv2.imread(filename)
+        crop_img = img[0:480, 90:90+480]
+        cv2.imwrite(filename, crop_img)
+            
         print('epoch = {0}, time = {1:.3f}, filename = {2}'.format(str(epoch).zfill(8), time() - st, filename))
 
     
